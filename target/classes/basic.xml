@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <http:listener-config name="httpListenerConfig" host="0.0.0.0" port="${http.port}" doc:name="HTTP Listener Configuration"/>
+    
+   
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+
+    <flow name="api-main">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/basic" allowedMethods="GET" doc:name="HTTP"/>
+        <set-property propertyName="NAME" value="MULE" doc:name="Property"/>
+        <set-property propertyName="age" value="25" doc:name="Property"/>
+        <set-payload value="path:#[message.inboundProperties.'http.listener.path'] method:#[message.inboundProperties.'http.method'] name:#[message.outboundProperties.NAME] Age:#[message.outboundProperties.age]" doc:name="Set Payload"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <flow name="basicFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/dynamic" allowedMethods="GET" doc:name="HTTP"/>
+        <set-property propertyName="Name" value="#[message.inboundProperties.'http.query.params'.Name]" doc:name="Property"/>
+        <set-property propertyName="Age" value="#[message.inboundProperties.'http.query.params'.Age]" doc:name="Property"/>
+        <set-payload value="Name:#[message.outboundProperties.Name]  Age:#[message.outboundProperties.Age]" doc:name="Set Payload"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
